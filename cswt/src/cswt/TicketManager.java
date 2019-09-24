@@ -308,7 +308,6 @@ public class TicketManager {
 		    return ticket;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
 			return null;
 		}
 	}
