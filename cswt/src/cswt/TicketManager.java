@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class TicketManager {
 	private static final String STATUS_CLOSED = "CLOSED";
 	private static final String STATUS_REJECTED = "REJECTED";
 	private static final String STATUS_FIXED = "FIXED";
+	private static final String TICKET_DIR = Paths.get(System.getProperty("user.dir"), "tickets").toString();
 	
 	
 	public TicketManager() {
@@ -47,6 +49,18 @@ public class TicketManager {
 		ticket.setStatus(STATUS_NEW);
 		Date date = new Date();
 		ticket.setId(Long.toString(date.getTime()));
+		boolean added = addTicket(ticket);
+		if (added) {
+			return ticket;
+		}
+		return null;
+	}
+	
+	/** Adds an existing ticket to the ticket manager 
+	 * @param ticket The ticket to be added
+	 * @return The ticket or null if the system was unable to store the ticket
+	 * */
+	public synchronized Ticket addExistingTicket(Ticket ticket) {
 		boolean added = addTicket(ticket);
 		if (added) {
 			return ticket;
@@ -222,21 +236,23 @@ public class TicketManager {
 			return true;
 		}
 		catch(Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 	    
 	}
 	
 	/** Updates a ticket's file. 
-	 * @param item The item to be updated
+	 * @param item The ticket to be updated
 	 * @return If the manager was able to update the ticket
 	 * */
-	private synchronized boolean updateTicket(Ticket item) {
+	private synchronized boolean updateTicket(Ticket ticket) {
 		try{
-			writeTicketToFile(item);
+			writeTicketToFile(ticket);
 			return true;
 		}
 		catch(Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 	}
@@ -245,7 +261,7 @@ public class TicketManager {
 	/** Loads in tickets to manager from ticket files. 
 	 * */
 	private synchronized void loadTickets() {
-		File folder = new File("src/tickets");
+		File folder = new File(TICKET_DIR);
 		if(folder.listFiles() != null) {
 			for(File file : folder.listFiles()) {
 				if((file.getName()).contains(".json") && readTicketFromFile(file) != null) {
@@ -270,6 +286,7 @@ public class TicketManager {
 			 return ticket;
 		 }
 		 catch (Exception e) {
+			 e.printStackTrace();
 			 return null;
 		 }
 	}
@@ -279,7 +296,7 @@ public class TicketManager {
 	 * @throws IOExcpetion
 	 * */
 	private synchronized void writeTicketToFile(Ticket ticket) throws IOException {
-		String filename = "src/tickets/" + ticket.getId() + ".json";
+		String filename = Paths.get(TICKET_DIR, ticket.getId().toString() + ".json").toString();
 		File file = new File(filename);
 		file.createNewFile();
 		writer = new FileWriter(filename);
@@ -290,7 +307,7 @@ public class TicketManager {
 	/** Parses an item from a JSONObject 
 	 * @param obj The JSONObject to be parsed
 	 * */
-	private synchronized Ticket fromJSON(JSONObject obj) {
+	public synchronized Ticket fromJSON(JSONObject obj) {
 		try {
 		    Ticket ticket = new Ticket();
 		    ticket.setTitle(obj.getString("title"));
@@ -308,6 +325,7 @@ public class TicketManager {
 		    return ticket;
 		}
 		catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
@@ -327,7 +345,14 @@ public class TicketManager {
 	/** Gets all tickets
 	 * @return The list of all tickets
 	 * */
-	public synchronized ArrayList<Ticket> getAllTickets() {
-		return this.getAllTickets();
+	public synchronized List<Ticket> getAllTickets() {
+		return this.tickets;
+	}
+	
+	/** Clear manager fields
+	 * */
+	public synchronized void clearManager() {
+		this.tickets.clear();
+		this.ids.clear();
 	}
 }

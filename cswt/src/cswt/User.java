@@ -11,6 +11,14 @@ public class User {
 	private String type;
 	private String actualName;
 	private String email;
+	
+	public User() {
+		username = "";
+		password = "";
+		type = "";
+		actualName = "";
+		email = "";
+	}
 	/**
 	 * @return the password
 	 */

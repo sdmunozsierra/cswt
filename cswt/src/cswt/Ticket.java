@@ -17,6 +17,21 @@ public class Ticket {
 	private String closedDate;
 	private String timeSpent;
 	private String id;
+	
+	public Ticket() {
+		title = "";
+		description = "";
+		status = "";
+		resolution = "";
+		severity = "";
+		priority = "";
+		client = "";
+		assignedTo = "";
+		openedDate = "";
+		closedDate = "";
+		timeSpent = "";
+		id = "";
+	}
 
 	/**
 	 * @return the title

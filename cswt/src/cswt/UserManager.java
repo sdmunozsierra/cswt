@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class UserManager {
 	private List<User> users;
 	private List<String> usernames;
 	private FileWriter writer;
+	private static final String USER_DIR = Paths.get(System.getProperty("user.dir"), "users").toString();
 	
 	public UserManager() {
 		this.users = new ArrayList<User>();
@@ -37,6 +39,18 @@ public class UserManager {
 		user.setPassword(password);
 		user.setType(type);
 		user.setUsername(username);
+		boolean added = addUser(user);
+		if (added) {
+			return user;
+		}
+		return null;
+	}
+	
+	/** Adds an existing user to the user manager 
+	 * @param user The user to be added
+	 * @return The user or null if the system was unable to store the user
+	 * */
+	public synchronized User addExistingUser(User user) {
 		boolean added = addUser(user);
 		if (added) {
 			return user;
@@ -74,7 +88,7 @@ public class UserManager {
 		return null;
 	}
 
-	/** Adds a user to the ticket manager. 
+	/** Adds a user to the manager. 
 	 * @param user The user to be added
 	 * @return If the manager was able to add the user
 	 * */
@@ -90,18 +104,18 @@ public class UserManager {
 		}
 	}
 	
-	/** Removes a user from the ticket manager and storage. 
+	/** Removes a user from the manager and storage. 
 	 * @param username The username of the user to be removed
 	 * */
 	public synchronized void deleteUser(String username) {
 		int index = this.usernames.indexOf(username);
 		this.usernames.remove(index);
 		this.users.remove(index);
-		File file = new File("src/users/" + username + ".json");
+		File file = new File(Paths.get(USER_DIR, username + ".json").toString());
 		file.delete();
 	}
 	
-	/** Updates an item in the item manager. 
+	/** Updates an user in the  manager. 
 	 * @param user The user to be updated
 	 * @return If the manager was able to update the user
 	 * */
@@ -118,7 +132,7 @@ public class UserManager {
 	/** Loads in users to manager from user files. 
 	 * */
 	private synchronized void loadUsers() {
-		File folder = new File("src/users");
+		File folder = new File(USER_DIR);
 		if(folder.listFiles() != null) {
 			for(File file : folder.listFiles()) {
 				if((file.getName()).contains(".json") && readUserFromFile(file) != null) {
@@ -152,7 +166,7 @@ public class UserManager {
 	 * @throws IOExcpetion
 	 * */
 	private synchronized void writeUserToFile(User user) throws IOException {
-		String filename = "src/users/" + user.getUsername() + ".json";
+		String filename = Paths.get(USER_DIR, user.getUsername().toString() + ".json").toString();
 		File file = new File(filename);
 		file.createNewFile();
 		writer = new FileWriter(filename);
@@ -163,7 +177,7 @@ public class UserManager {
 	/** Parses an user from a JSONObject 
 	 * @param obj The JSONObject to be parsed
 	 * */
-	private synchronized User fromJSON(JSONObject obj) {
+	public synchronized User fromJSON(JSONObject obj) {
 		try {
 		    User user = new User();
 		    user.setActualName(obj.getString("actualName"));
@@ -190,10 +204,29 @@ public class UserManager {
 		return this.users.get(index);
 	}
 	
+	/** Checks if a username has been registered in the manager
+	 * @param username The provided username
+	 * @return If the user is in the manager or not
+	 * */
+	public synchronized boolean hasUser(String username) {
+		int index = this.usernames.indexOf(username);
+		if (index == -1) {
+			return false;
+		}
+		return true;
+	}
+	
 	/** Gets all current users
 	 * @return The list of all users
 	 * */
-	public synchronized ArrayList<User> getAllUsers() {
-		return this.getAllUsers();
+	public synchronized List<User> getAllUsers() {
+		return this.users;
+	}
+	
+	/** Clear manager fields
+	 * */
+	public synchronized void clearManager() {
+		this.usernames.clear();
+		this.users.clear();
 	}
 }
