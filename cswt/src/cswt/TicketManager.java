@@ -24,7 +24,7 @@ public class TicketManager {
 	private static final String STATUS_CLOSED = "CLOSED";
 	private static final String STATUS_REJECTED = "REJECTED";
 	private static final String STATUS_FIXED = "FIXED";
-	private static final String TICKET_DIR = Paths.get(System.getProperty("user.dir"), "tickets").toString();
+	public static final String TICKET_DIR = Paths.get(System.getProperty("user.dir"), "tickets").toString();
 	
 	
 	public TicketManager() {

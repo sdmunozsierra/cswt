@@ -4,8 +4,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.List;
+
 import org.json.JSONObject;
 
+import cswt.Ticket;
+import cswt.User;
 import json.JSONPacketReader;
 import json.JSONPacketWriter;
 import json.JSONReader;
@@ -33,6 +37,8 @@ public class JSONPacketClient {
     private static final String UPDATE_TIME_SPENT = "Update time spent";
     private static final String GET_ALL_TICKETS = "Get all tickets";
     private static final String SUCCESSFUL = "Successful";
+    private static final String FAILED = "Failed";
+    private static final String INVALID = "Invalid";
     private static final String COMPLETE = "Complete";
     private static final String CREATE_ACCOUNT = "Create account";
     private static final String VALIDATE_USER = "Validate user";
@@ -43,15 +49,16 @@ public class JSONPacketClient {
     private DataOutputStream oos = null;
     private DataInputStream ois = null;
     private static final String ENCODING = "UTF-8";
+    private static final int PORT = 9880;
     private JSONWriter wrtr = null;
     private JSONReader rdr = null;
-    public ClientTicketManager ticketManager = null;
-    public ClientUserManager userManager = null;
+    private ClientTicketManager ticketManager = null;
+    private ClientUserManager userManager = null;
     
     public JSONPacketClient() {
     	try {
 	        InetAddress host = InetAddress.getLocalHost();
-	        socket = new Socket(host.getHostName(), 9880);
+	        socket = new Socket(host.getHostName(), PORT);
 	        oos = new DataOutputStream(socket.getOutputStream());
 	        wrtr = new JSONPacketWriter(oos, ENCODING);
 	        ois = new DataInputStream(socket.getInputStream());
@@ -63,20 +70,32 @@ public class JSONPacketClient {
     	}
     	
     }
-
-    public synchronized boolean createTicket(String title, String description, String client, String severity) {
+	/** Sends a create ticket request to server.  
+	 * @param title The title of the ticket to be added
+	 * @param description The description of the ticket to be added
+	 * @param client The client of the ticket to be added
+	 * @param severity The severity of the ticket to be added
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String createTicket(String title, String description, String client, String severity) {
         String sendJson = "{\"request\": "+ CREATE_TICKET + ", \"title\": " + title + ", \"description\": " + description + ", \"client\": " + client + ", \"severity\": " + severity +"}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean openTicket(String id, String priority, String assignedTo) {
+	/** Sends an open ticket request to server.  
+	 * @param id The id of the ticket
+	 * @param priority The priority of ticket
+	 * @param assingedTo The assignee of the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String openTicket(String id, String priority, String assignedTo) {
         String sendJson = "{\"request\": "+ OPEN_TICKET + ", \"id\": " + id + ", \"priority\": " + priority + ", \"assignedTo\": " + assignedTo + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -84,12 +103,16 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean closeTicket(String id) {
+	/** Sends a close ticket request to server.  
+	 * @param id The id of the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String closeTicket(String id) {
         String sendJson = "{\"request\": "+ CLOSE_TICKET + ", \"id\": " + id + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -97,12 +120,18 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean markTicketAsFixed(String id, String resolution, String timeSpent) {
+	/** Sends a fix ticket request to server.  
+	 * @param id The id of the ticket
+	 * @param resolution The resolution of ticket
+	 * @param timeSpent The time spent on the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String markTicketAsFixed(String id, String resolution, String timeSpent) {
     	String sendJson = "{\"request\": "+ MARK_TICKET_AS_FIXED + ", \"id\": " + id + ", \"resolution\": " + resolution + ", \"timeSpent\": " + timeSpent + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -110,12 +139,16 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean rejectTicket(String id) {
+	/** Sends a reject ticket request to server.  
+	 * @param id The id of the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String rejectTicket(String id) {
         String sendJson = "{\"request\": "+ REJECT_TICKET + ", \"id\": " + id + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -123,12 +156,17 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean assignTicket(String id, String assignedTo) {
+	/** Sends an assign request to server.  
+	 * @param id The id of the ticket
+	 * @param assignedTo The assignee of the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String assignTicket(String id, String assignedTo) {
     	String sendJson = "{\"request\": "+ ASSIGN_TICKET + ", \"id\": " + id + ", \"assignedTo\": " + assignedTo + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -136,12 +174,17 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean setTicketSeverity(String id, String severity) {
+	/** Sends a set ticket severity request to server.  
+	 * @param id The id of the ticket
+	 * @param severity The severity of the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String setTicketSeverity(String id, String severity) {
     	String sendJson = "{\"request\": "+ SET_TICKET_SEVERITY + ", \"id\": " + id + ", \"severity\": " + severity + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -149,12 +192,17 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean setTicketPriority(String id, String priority) {
+	/** Sends a set ticket priority request to server.  
+	 * @param id The id of the ticket
+	 * @param priority The severity of the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String setTicketPriority(String id, String priority) {
     	String sendJson = "{\"request\": "+ SET_TICKET_PRIORITY + ", \"id\": " + id + ", \"priority\": " + priority + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -162,12 +210,17 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean updateTicketResolution(String id, String resolution) {
+	/** Sends a update ticket resolution request to server.  
+	 * @param id The id of the ticket
+	 * @param resolution The new resolution of the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String updateTicketResolution(String id, String resolution) {
     	String sendJson = "{\"request\": "+ UPDATE_TICKET_RESOLUTION + ", \"id\": " + id + ", \"resolution\": " + resolution + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -175,12 +228,17 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean updateTimeSpent(String id, String timeSpent) {
+	/** Sends an update time spent request to server  
+	 * @param id The id of the ticket
+	 * @param timeSpent The new time spent on the ticket
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String updateTimeSpent(String id, String timeSpent) {
     	String sendJson = "{\"request\": "+ UPDATE_TIME_SPENT + ", \"id\": " + id + ", \"timeSpent\": " + timeSpent + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -188,12 +246,14 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean getAllTickets(String id, String timeSpent) {
+	/** Sends a get all tickets request to server.  
+	 * */
+    public synchronized void updateAllTickets() {
     	ticketManager.clearManager();
     	String sendJson = "{\"request\": "+ GET_ALL_TICKETS + "}";
         wrtr.write(sendJson);
@@ -205,12 +265,19 @@ public class JSONPacketClient {
         	}
         	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
         }
-        return true;
     }
     
-    public synchronized boolean createAccount(String username, String password, String type, String actualName, String email) {
+	/** Sends a create account request to server.
+	 * @param username The username of the new user
+	 * @param password The password of the new user
+	 * @param type The type of the new user
+	 * @param actualName The actual name of the new user
+	 * @param email The email of the new user
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String createAccount(String username, String password, String type, String actualName, String email) {
     	if (userManager.hasUser(username)) {
-    		return false;
+    		return FAILED;
     	}
         String sendJson = "{\"request\": "+ CREATE_ACCOUNT + ", \"username\": " + username + ", \"password\": " + password + ", \"type\": " + type + ", \"actualName\": " + actualName + ", \"email\": " + email +"}";
         wrtr.write(sendJson);
@@ -218,23 +285,33 @@ public class JSONPacketClient {
         JSONObject message = new JSONObject(retrievedJSON);
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	userManager.addUser(userManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean validateUser(String username, String password) {
+	/** Sends a validate user request to server.
+	 * @param username The username of the user
+	 * @param password The password of the user
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String validateUser(String username, String password) {
     	String sendJson = "{\"request\": "+ VALIDATE_USER + ", \"username\": " + username + ", \"password\": " + password + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
         if (message.get("response").toString().equals(SUCCESSFUL)) {
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean updatePermissions(String username, String newType) {
+	/** Sends an update permissions request to server.
+	 * @param username The username of the user
+	 * @param newType The new permissions of the user
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String updatePermissions(String username, String newType) {
     	String sendJson = "{\"request\": "+ UPDATE_PERMISSIONS + ", \"username\": " + username + ", \"newType\": " + newType + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
@@ -242,24 +319,30 @@ public class JSONPacketClient {
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	userManager.removeUser(username);
         	userManager.addUser(userManager.fromJSON(new JSONObject(message.get("result").toString())));
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean deleteUser(String username) {
+	/** Sends a delete user request to server.
+	 * @param username The username of the user
+	 * @return A String that represents the result of the request
+	 * */
+    public synchronized String deleteUser(String username) {
     	String sendJson = "{\"request\": "+ DELETE_USER + ", \"username\": " + username + "}";
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
         if (message.get("response").toString().equals(SUCCESSFUL)) {
         	userManager.removeUser(username);
-        	return true;
+        	return SUCCESSFUL;
         }
-        return false;
+        return FAILED;
     }
     
-    public synchronized boolean getAllUsers(String id, String timeSpent) {
+	/** Sends a get all users request to server.  
+	 * */
+    public synchronized String updateAllUsers() {
     	userManager.clearManager();
     	String sendJson = "{\"request\": "+ GET_ALL_USERS + "}";
         wrtr.write(sendJson);
@@ -271,8 +354,41 @@ public class JSONPacketClient {
         	}
         	userManager.addUser(userManager.fromJSON(new JSONObject(message.get("result").toString())));
         }
-        return true;
+        return SUCCESSFUL;
     }    
+    
+	/** Gets all tickets.
+	 * @return A List of all tickets
+	 * */
+    public synchronized List<Ticket> getAllTickets() {
+    	return ticketManager.getAllTickets();
+    }
+    
+	/** Gets a ticket from the local ticket manager
+	 * @param id The id of the ticket
+	 * @return The ticket or null if no ticket with that id exists
+	 * */
+    public synchronized Ticket getTicket(String id) {
+    	return ticketManager.getTicket(id);
+    }
+    
+	/** Gets all users.
+	 * @return A List of all users
+	 * */
+    public synchronized List<User> getAllTicket() {
+    	return userManager.getAllUsers();
+    }
+    
+	/** Gets a user from the local user manager.
+	 * @param username The username of the user
+	 * @return The user or null if no user with that username exists
+	 * */
+    public synchronized User getUser(String username) {
+    	return userManager.getUser(username);
+    }
+    
+    /** Closes client readers and writers
+	 * */
     public synchronized void closeClient() {
         wrtr.close();
         rdr.close();

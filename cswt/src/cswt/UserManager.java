@@ -16,7 +16,7 @@ public class UserManager {
 	private List<User> users;
 	private List<String> usernames;
 	private FileWriter writer;
-	private static final String USER_DIR = Paths.get(System.getProperty("user.dir"), "users").toString();
+	public static final String USER_DIR = Paths.get(System.getProperty("user.dir"), "users").toString();
 	
 	public UserManager() {
 		this.users = new ArrayList<User>();
