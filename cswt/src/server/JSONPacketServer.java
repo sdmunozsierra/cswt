@@ -14,6 +14,7 @@ import cswt.UserManager;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -50,6 +51,14 @@ public class JSONPacketServer {
         String encd = "UTF-8";
         TicketManager ticketManager = new TicketManager();
         UserManager userManager = new UserManager();
+        File ticketDirectory = new File(TicketManager.TICKET_DIR);
+        File userDirectory = new File(UserManager.USER_DIR);
+        if (!ticketDirectory.exists()) {
+        	ticketDirectory.mkdir();
+        }
+        if (!userDirectory.exists()) {
+        	userDirectory.mkdir();
+        }
         //create the socket server object
         server = new ServerSocket(port);
         //creating socket and waiting for client connection
@@ -285,7 +294,6 @@ public class JSONPacketServer {
                 }
             }
         } catch (JSONException e1) {
-            // TODO Auto-generated catch block
             e1.printStackTrace();
         }
     }
