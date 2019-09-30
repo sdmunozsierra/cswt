@@ -82,8 +82,8 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        if (message.getString("response").equals(SUCCESSFUL)) {
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -100,9 +100,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -117,9 +117,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -136,9 +136,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -153,9 +153,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -171,9 +171,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -189,9 +189,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -207,9 +207,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -225,9 +225,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -243,9 +243,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	ticketManager.removeTicket(id);
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -260,10 +260,10 @@ public class JSONPacketClient {
         while(true) {
         	String retrievedJSON = rdr.read();
         	JSONObject message = new JSONObject(retrievedJSON);
-        	if (message.get("response").toString().equals(COMPLETE)) {
+        	if (message.getString("response").equals(COMPLETE)) {
         		break;
         	}
-        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	ticketManager.addTicket(ticketManager.fromJSON(new JSONObject(message.getString("result"))));
         }
     }
     
@@ -283,8 +283,8 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
-        	userManager.addUser(userManager.fromJSON(new JSONObject(message.get("result").toString())));
+        if (message.getString("response").equals(SUCCESSFUL)) {
+        	userManager.addUser(userManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -300,7 +300,7 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -316,9 +316,9 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	userManager.removeUser(username);
-        	userManager.addUser(userManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	userManager.addUser(userManager.fromJSON(new JSONObject(message.getString("result"))));
         	return SUCCESSFUL;
         }
         return FAILED;
@@ -333,7 +333,7 @@ public class JSONPacketClient {
         wrtr.write(sendJson);
         String retrievedJSON = rdr.read();
         JSONObject message = new JSONObject(retrievedJSON);
-        if (message.get("response").toString().equals(SUCCESSFUL)) {
+        if (message.getString("response").equals(SUCCESSFUL)) {
         	userManager.removeUser(username);
         	return SUCCESSFUL;
         }
@@ -349,10 +349,10 @@ public class JSONPacketClient {
         while(true) {
         	String retrievedJSON = rdr.read();
         	JSONObject message = new JSONObject(retrievedJSON);
-        	if (message.get("response").toString().equals(COMPLETE)) {
+        	if (message.getString("response").equals(COMPLETE)) {
         		break;
         	}
-        	userManager.addUser(userManager.fromJSON(new JSONObject(message.get("result").toString())));
+        	userManager.addUser(userManager.fromJSON(new JSONObject(message.getString("result"))));
         }
         return SUCCESSFUL;
     }    

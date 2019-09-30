@@ -4,7 +4,6 @@ import json.JSONPacketReader;
 import json.JSONPacketWriter;
 import json.JSONReader;
 import json.JSONWriter;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import cswt.Ticket;
@@ -75,12 +74,12 @@ public class JSONPacketServer {
 	            JSONObject message = null;
 	            if (retrievedJSON != null){
 	                message = new JSONObject(retrievedJSON);
-	                String method = (String) message.get("request");
+	                String method = message.getString("request");
 	                if (method.equals(CREATE_TICKET)) {
-	                	String title = (String) message.get("title").toString();
-	                	String description = (String) message.get("description");
-	                	String client = (String) message.get("client");
-	                	String severity =  (String) message.get("severity");
+	                	String title = message.getString("title");
+	                	String description = message.getString("description");
+	                	String client = message.getString("client");
+	                	String severity =  message.getString("severity");
 	                	Ticket ticket = ticketManager.createTicket(title, description, client, severity);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -93,9 +92,9 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(OPEN_TICKET)) {
-	                	String id = ((Long) message.get("id")).toString();
-	                	String priority =  ((Integer) message.get("priority")).toString();
-	                	String assignedTo = (String) message.get("assignedTo");
+	                	String id = message.getString("id");
+	                	String priority = message.getString("priority");
+	                	String assignedTo = message.getString("assignedTo");
 	                	Ticket ticket = ticketManager.openTicket(id, priority, assignedTo);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -108,9 +107,9 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(MARK_TICKET_AS_FIXED)) {
-	                	String id = ((Long) message.get("id")).toString();
-	                	String resolution = (String) message.get("resolution");
-	                	String timeSpent = ((Integer) message.get("timeSpent")).toString();
+	                	String id = message.getString("id");
+	                	String resolution = message.getString("resolution");
+	                	String timeSpent = message.getString("timeSpent");
 	                	Ticket ticket = ticketManager.markTicketAsFixed(id, resolution, timeSpent);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -123,7 +122,7 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(CLOSE_TICKET)) {
-	                	String id = ((Long) message.get("id")).toString();
+	                	String id = message.getString("id");
 	                	Ticket ticket = ticketManager.closeTicket(id);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -136,7 +135,7 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(REJECT_TICKET)) {
-	                	String id = ((Long) message.get("id")).toString();
+	                	String id = message.getString("id");
 	                	Ticket ticket = ticketManager.rejectTicket(id);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -149,8 +148,8 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(ASSIGN_TICKET)) {
-	                	String id = ((Long) message.get("id")).toString();
-	                	String assignedTo = (String) message.get("assignedTo");
+	                	String id = message.getString("id");
+	                	String assignedTo = message.getString("assignedTo");
 	                	Ticket ticket = ticketManager.assignTicket(id, assignedTo);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -163,8 +162,8 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(SET_TICKET_SEVERITY)) {
-	                	String id = ((Long) message.get("id")).toString();
-	                	String severity = (String) message.get("severity");
+	                	String id = message.getString("id");
+	                	String severity = message.getString("severity");
 	                	Ticket ticket = ticketManager.setTicketSeverity(id, severity);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -177,8 +176,8 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(SET_TICKET_PRIORITY)) {
-	                	String id = ((Long) message.get("id")).toString();
-	                	String priority = ((Integer) message.get("priority")).toString();
+	                	String id = message.getString("id");
+	                	String priority = message.getString("priority");
 	                	Ticket ticket = ticketManager.setTicketPriority(id, priority);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -191,8 +190,8 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(UPDATE_TICKET_RESOLUTION)) {
-	                	String id = ((Long) message.get("id")).toString();
-	                	String resolution = (String) message.get("resolution");
+	                	String id = message.getString("id");
+	                	String resolution = message.getString("resolution");
 	                	Ticket ticket = ticketManager.updateTicketResolution(id, resolution);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -205,8 +204,8 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(UPDATE_TIME_SPENT)) {
-	                	String id = ((Long) message.get("id")).toString();
-	                	String timeSpent = (String) message.get("timeSpent");
+	                	String id = message.getString("id");
+	                	String timeSpent = message.getString("timeSpent");
 	                	Ticket ticket = ticketManager.updateTicketTimeSpent(id, timeSpent);
 	                	if (ticket != null) {
 	                    	String ticketString = ticket.toJSON().toString();
@@ -227,15 +226,15 @@ public class JSONPacketServer {
 	                	wrtr.write("{\"response\":" + COMPLETE + "}");
 	                }
 	                else if (method.equals(CREATE_ACCOUNT)) {
-	                	String username = (String) message.get("username");
+	                	String username = message.getString("username");
 	                	if (userManager.hasUser(username)) {
 	                		String sendJson = "{\"response\":" + FAILED + "}";
 	                    	wrtr.write(sendJson);
 	                	}
-	                	String password = (String) message.get("password");
-	                	String type = (String) message.get("type");
-	                	String actualName = (String) message.get("actualName");
-	                	String email = (String) message.get("email");
+	                	String password = message.getString("password");
+	                	String type = message.getString("type");
+	                	String actualName = message.getString("actualName");
+	                	String email = message.getString("email");
 	                	User user = userManager.createAccount(username, password, type, actualName, email);
 	                	if (user != null) {
 	                    	String userString = user.toJSON().toString();
@@ -248,8 +247,8 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(VALIDATE_USER)) {
-	                	String username = (String) message.get("username");
-	                	String password = (String) message.get("password");
+	                	String username = message.getString("username");
+	                	String password = message.getString("password");
 	                	boolean valid = userManager.validateUser(username, password);
 	                	if (valid) {
 	                    	String sendJson = "{\"response\":" + SUCCESSFUL+ "}";
@@ -261,8 +260,8 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(UPDATE_PERMISSIONS)) {
-	                	String username = (String) message.get("username");
-	                	String newType = (String) message.get("newType");
+	                	String username = message.getString("username");
+	                	String newType = message.getString("newType");
 	                	User user = userManager.updateUserPermissions(username, newType);
 	                	if (user != null) {
 	                    	String userString = user.toJSON().toString();
@@ -275,7 +274,7 @@ public class JSONPacketServer {
 	                	}
 	                }
 	                else if (method.equals(DELETE_USER)) {
-	                	String username = (String) message.get("username");
+	                	String username = message.getString("username");
 	                	userManager.deleteUser(username);
 	                    String sendJson = "{\"response\":" + SUCCESSFUL + "}";
 	                    wrtr.write(sendJson);
